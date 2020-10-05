@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© {year}</copyright>
-    <lastBuildDate>Wed, 01 Jan 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 24 Sep 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://davidpeicho.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,9 +15,36 @@
     <item>
       <title>graphics</title>
       <link>https://davidpeicho.github.io/tags/graphics/</link>
-      <pubDate>Wed, 01 Jan 2020 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 24 Sep 2020 00:00:00 +0000</pubDate>
       
       <guid>https://davidpeicho.github.io/tags/graphics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>three.js</title>
+      <link>https://davidpeicho.github.io/tags/three.js/</link>
+      <pubDate>Thu, 24 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://davidpeicho.github.io/tags/three.js/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>volume-rendering</title>
+      <link>https://davidpeicho.github.io/tags/volume-rendering/</link>
+      <pubDate>Thu, 24 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://davidpeicho.github.io/tags/volume-rendering/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>webgl</title>
+      <link>https://davidpeicho.github.io/tags/webgl/</link>
+      <pubDate>Thu, 24 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://davidpeicho.github.io/tags/webgl/</guid>
       <description></description>
     </item>
     
@@ -54,15 +81,6 @@
       <pubDate>Mon, 01 Jan 2018 00:00:00 +0000</pubDate>
       
       <guid>https://davidpeicho.github.io/tags/js/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>three.js</title>
-      <link>https://davidpeicho.github.io/tags/three.js/</link>
-      <pubDate>Mon, 01 Jan 2018 00:00:00 +0000</pubDate>
-      
-      <guid>https://davidpeicho.github.io/tags/three.js/</guid>
       <description></description>
     </item>
     

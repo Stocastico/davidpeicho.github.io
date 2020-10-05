@@ -19,12 +19,42 @@
   
   <url>
     <loc>https://davidpeicho.github.io/</loc>
-    <lastmod>2020-01-01T00:00:00+00:00</lastmod>
+    <lastmod>2020-09-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://davidpeicho.github.io/blog/cloud-raymarching-walkthrough-part1/</loc>
+    <lastmod>2020-09-24T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://davidpeicho.github.io/tags/graphics/</loc>
-    <lastmod>2020-01-01T00:00:00+00:00</lastmod>
+    <lastmod>2020-09-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://davidpeicho.github.io/blog/</loc>
+    <lastmod>2020-09-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://davidpeicho.github.io/tags/</loc>
+    <lastmod>2020-09-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://davidpeicho.github.io/tags/three.js/</loc>
+    <lastmod>2020-09-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://davidpeicho.github.io/tags/volume-rendering/</loc>
+    <lastmod>2020-09-24T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://davidpeicho.github.io/tags/webgl/</loc>
+    <lastmod>2020-09-24T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -38,22 +68,12 @@
   </url>
   
   <url>
-    <loc>https://davidpeicho.github.io/tags/</loc>
-    <lastmod>2020-01-01T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://davidpeicho.github.io/tags/blog/</loc>
     <lastmod>2019-09-22T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://davidpeicho.github.io/tags/hugo/</loc>
-    <lastmod>2019-09-22T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://davidpeicho.github.io/blog/</loc>
     <lastmod>2019-09-22T00:00:00+00:00</lastmod>
   </url>
   
@@ -69,11 +89,6 @@
   
   <url>
     <loc>https://davidpeicho.github.io/tags/js/</loc>
-    <lastmod>2018-01-01T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://davidpeicho.github.io/tags/three.js/</loc>
     <lastmod>2018-01-01T00:00:00+00:00</lastmod>
   </url>
   
