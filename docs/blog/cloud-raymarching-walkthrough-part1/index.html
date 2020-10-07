@@ -120,7 +120,7 @@
       "datePublished": "2020-09-24 00:00:00 \x2b0000 UTC",
       "dateModified" : "2020-09-24 00:00:00 \x2b0000 UTC",
       "url" : "https:\/\/davidpeicho.github.io\/blog\/cloud-raymarching-walkthrough-part1\/",
-      "wordCount" : "4362",
+      "wordCount" : "4428",
       "keywords" : ["volume rendering", "raymarching", "cloud", "three.js", "webgl", "Blog"]
     }
   
@@ -203,20 +203,29 @@ Results will be validated at each step to ensure you get the expected results.</
 </ul>
 <p>If you are comfortable with graphics, it may be faster and more interesting
 for you to dive <a href="https://github.com/DavidPeicho/davidpeicho.github.io/tree/master/src">in the code</a> and simply cherry pick what you need.</p>
+<blockquote class="hint warning">
+  <p>This tutorial will use WebGL 3D textures. Unfortunately, it will only work
+in <strong>WebGL2</strong>-compatible browsers.</p>
+<p>As of October 2020, WebGL2 is landing in Safari and is available behind
+an experimental flag. You can enable it in
+<code>Develop → Experimental features → WebGL 2.0</code></p>
+
+</blockquote>
+
 <h2 id="volume-rendering-overview">Volume Rendering Overview<a class="anchor" href="#volume-rendering-overview">#</a></h2>
 <p>Volume Rendering is a vast world. There are many algorithm / techniques to
 render data called <em>&ldquo;volumes&rdquo;</em>.</p>
-<p>A <em>&ldquo;volume&rdquo;</em> is a data set spanning <strong>1</strong>, <strong>2</strong>, <strong>3</strong>, or <strong>N</strong> dimensions. In a lot of fields
-(entertainement industry, medical imaging), a volume is represented by a 2D
-or 3D grid containing data samples.</p>
-<p>We are here most interested in 3D volumes, which can be represented as 3D textures
-where each voxel contains a given quantity.</p>
+<p>A <em>&ldquo;volume&rdquo;</em> is a data set spanning <strong>3</strong> dimensions. In a lot of fields
+(entertainement industry, medical imaging), a volume is represented by
+3D grid containing data samples. 3D volumes are represented as 3D textures
+where each voxel contains a given quantity, often a scalar.</p>
 <p>At the opposite of meshes, volumes aren&rsquo;t defined only by a surface. Good examples
-of data represented as volume may be smoke, clouds, CT scan data, etc&hellip;
-You may have understood, the purpose of a volume is often to represent semi-transparent
-medium.</p>
-<p>Rendering a volume consists, just like for a mesh, into computing the radiance
-reaching the camera. Volumes being dense (at the opposite of meshes being represented
+of data represented as volume may be smoke, clouds, medical scan data, etc&hellip;
+Volumes are often used to represent semi-transparent medium.</p>
+<p>Rendering a volume consists, just like for a mesh, into computing the <a href="https://en.wikipedia.org/wiki/Radiance">radiance</a> reaching the camera. In simple terms, the radiance
+represents the energy (the number of photons) going in a particular direction
+per unit of time.</p>
+<p>Volumes being dense (at the opposite of meshes being represented
 only by a surface), there exists other mathematical models to describe interactions
 between light and volumes. In general, those models assume that light can be:</p>
 <ul>
@@ -228,27 +237,26 @@ between light and volumes. In general, those models assume that light can be:</p
 want to go further into the theory, I highly recommend you to have a look at the
 <a href="#references">References section</a>. The section contains a list of courses, books,
 or papers that will go further into the theory.</p>
-<p>For beginners, those links may be a bit advanced. Don&rsquo;t worry If you feel like
-it&rsquo;s too much, because we are going to apply an extremely simplified version
+<p>For beginners, those links may seem advanced. You shouldn&rsquo;t worry If you feel like
+it&rsquo;s too much, because we are going to apply a simplified version
 of the rendering equation in this tutorial.</p>
 <h2 id="algorithm-overview">Algorithm Overview<a class="anchor" href="#algorithm-overview">#</a></h2>
-<p>As we saw at the previous section, a volume isn&rsquo;t defined by a set of triangles.
+<p>We saw in the previous section that a volume isn&rsquo;t defined by a set of triangles.
 Thus, we can&rsquo;t use our classic rasterization pipeline to render them. One of the
 possible way to visualize a volume is to use <strong>Ray Marching</strong>.
 You may be familiar with <a href="https://en.wikipedia.org/wiki/Ray_casting">Ray Casting</a>,
 where rays are shot through every pixels of the screen, and checked for intersection
-with the world. Ray Marching is similar in essence, but different during the sampling step.
+with world objects. Ray Marching is similar in essence, but different during the sampling step.
 When a ray intersects a volume, it is sampled at some given interval until it goes
 out of the volume.</p>
 <p><img src="./light-volume-interactions.jpg" alt="Scattering effects, where perceived can come from multiple bounces"></p>
 <p>For our use case, simulating <strong>scattering</strong> isn&rsquo;t needed. Scattering turns the
 rendering equation into a recursion. To compute the radiance from a given direction at a given point,
 the equation needs to evaluate the radiance coming from all over.</p>
-<p>In this tutorial, we will perform hard approximation and solve an equation that
+<p>In this tutorial, we will perform rough estimate and solve an equation that
 will not be physically correct. Images we see in the world are the results
-of complex phenomenons due to scattering. However, let&rsquo;s not worry too much,
-you will see that our final result will still be pleasing :)</p>
-<p>It can be shown (<a href="">Engel et al, 06</a>) that by <strong>neglecting</strong> scattering effect
+of complex phenomenons due to scattering.</p>
+<p>It can be shown [<a href="https://doc.lagout.org/science/0_Computer%20Science/Real-Time%20Volume%20Graphics.pdf">Engel et al, 06</a>] that by <strong>neglecting</strong> scattering effect
 from the rendering equation, the radiant energy (i.e: the pixel color here) can be defined
 as:</p>
 <p>$$ R = \int_0^{L}{c(t)\exp^{-\tau(0, t)}}dt $$</p>
@@ -275,7 +283,7 @@ the exponential of the sum into a product of exponential</p>
 <p>$$ \exp^{-\tau(0, L)} \approx \prod_{i = 0}^{N}{a_i} $$</p>
 <p>Using the same technique, we can also discretize the color part of the equation:</p>
 <p>$$ c_i = c(i * \Delta_N)\Delta_N $$</p>
-<p>The final equation is obtained similarly (<a href="">Engel et al, 06</a>):</p>
+<p>The final equation is obtained similarly [<a href="https://doc.lagout.org/science/0_Computer%20Science/Real-Time%20Volume%20Graphics.pdf">Engel et al, 06</a>]:</p>
 <p>$$ R_{discrete} = \sum_{i=0}^N{c_i}\prod_{j=0}^{i-1}{a_j} $$</p>
 <p>Computing the color at step <strong>i</strong> is equivalent to applying alpha blending to
 the <strong>i-th</strong> sample color:</p>
@@ -285,7 +293,9 @@ will basically be the composition of all colors, weighted by the transmission fa
 That is to say, the more opaque the accumulated color is, the less a sample
 will contribute to the final result.</p>
 <p>At the beginning of the section, I said:</p>
-<p><em>&ldquo;we can&rsquo;t use our classic rasterization pipeline to render them&rdquo;</em></p>
+<blockquote>
+<p><em>we can&rsquo;t use our classic rasterization pipeline to render them</em></p>
+</blockquote>
 <p>This was a bit of a lie my friends. To generate the rays, we are going to take
 advantage of the rasterization. We are basically going to render a cube to
 represent the shape of the volume, and we will use the fragment shader to perform the
@@ -298,7 +308,7 @@ ray marching inside the 3D texture.</p>
 <li>Blending with previous color and alpha accumulation</li>
 <li>Repeat from <strong>3</strong> until ray exits the volume</li>
 </ol>
-<p>If you feel like you want to go deeper in the math and theory, please
+<p>If you feel like you want to go deeper in the math and the theory, please
 have a look at the <a href="#references">References section</a>.</p>
 <h2 id="creating-a-material">Creating a Material<a class="anchor" href="#creating-a-material">#</a></h2>
 <p>Let&rsquo;s start by creating a material that will reference our shaders. We will
@@ -355,10 +365,10 @@ export class CloudMaterial extends ShaderMaterial {
 }
 </code></pre>
 <blockquote class="hint warning">
-  Don&rsquo;t forget to add the line <code>this.side = BackSide;</code> because the entire
-ray generation process relays on that. This line will make our cube only render
-back facing triangles. We are going to render the cloud using a perspective camera,
-it&rsquo;s thus impossible to generate the rays using the front faces of the cube.
+  Don&rsquo;t forget to add the line <code>this.side = BackSide;</code> because the ray generation
+process relies on that. This line will make our cube only render back facing triangles.
+We are going to render the cloud using a perspective camera, it&rsquo;s thus impossible
+to generate the rays using the front faces of the cube.
 </blockquote>
 
 <h2 id="creating-a-mesh">Creating a Mesh<a class="anchor" href="#creating-a-mesh">#</a></h2>
@@ -426,11 +436,11 @@ render();
   Dont forget to add the canvas to the dom or use your own canvas in the renderer.
 </blockquote>
 
-<p>Nothing fancy yet, but our debbuging setup should be working and show:</p>
+<p>Nothing fancy yet, but our debbuging setup should be working:</p>
 <p><img src=".//scene-setup.jpg" alt="Debug Cube"></p>
 <h2 id="generating-a-volume">Generating a Volume<a class="anchor" href="#generating-a-volume">#</a></h2>
 <p>Our setup is ready, we now need a volume texture to sample. As stated,
-a volume is simply a collection of scalars (most of the time :)).</p>
+a volume is simply a collection of scalars (most of the time at least :)).</p>
 <p>WebGL 2 has support for <a href="">3D Textures</a>. We will thus store our volume in a
 3D Texture, and sample this texture in the shader.</p>
 <p>To generate something cloudy, we can use a <a href="https://en.wikipedia.org/wiki/Perlin_nois">Perlin Noise</a> generator.
@@ -438,8 +448,7 @@ I am not going to go through how Perlin Noise works here, but if you are curious
 you can have a look at <a href="https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/perlin-noise-part-2">Scratchapixel</a> that has a detail course on it. Even better, you can also
 directly have a look at <a href="https://mrl.nyu.edu/~perlin/doc/oscar.html">this website</a> linking
 to the original paper by Ken Perlin.</p>
-<p>Turns out that Three.js has the implemntation of the improved Perlin noise.
-We don&rsquo;t even need to do anything:</p>
+<p>Turns out that Three.js has the implemntation of the improved Perlin noise:</p>
 <p><em>cloud.js</em></p>
 <pre><code class="language-js">export function createPerlinTexture(options = {}) {
 
@@ -565,10 +574,10 @@ as a uniform:</p>
 </code></pre>
 <h2 id="ray-generation">Ray Generation<a class="anchor" href="#ray-generation">#</a></h2>
 <p>We need to generate, for every fragment, a ray that will step through the volume.
-Fortunately for us, it&rsquo;s actually quite easy to do. In the vertex shader, we have access to vertices position as
-well as the camera information. It&rsquo;s possible to generate a ray that will start
-at the camera origin, and go through the vertex position.</p>
-<p>For now, we will assume the volume and the ray origin are static.
+In the vertex shader, we have access to vertices position as well as the camera
+information. It&rsquo;s possible to generate a ray that will start at the camera origin,
+and go through the vertex position.</p>
+<p>For now, we will assume the cloud and the ray origin (i.e., the camera) are static.
 Let&rsquo;s see how the code looks:</p>
 <p><em>cloud.vert.glsl</em></p>
 <pre><code class="language-glsl">// We need to send the origin of the ray, as well
@@ -594,10 +603,17 @@ main()
 <p>As you can see, the ray <strong>isn&rsquo;t</strong> specified in World Space, but rather in
 <strong>Model Space</strong>. Let&rsquo;s continue a bit, and this will be explained later in the
 <a href="#improving-ray-generation">Improving Ray Generation</a> section.</p>
-<p>You may be wondering why the origin is offseted <code>vec3(0.5)</code>. The <code>BoxBufferGeometry</code>
-we create is centered around <code>(0, 0, 0)</code>, but the volume texture needs to be
+<p>You may be wondering why the origin has an offset of <code>vec3(0.5)</code>. The <code>BoxBufferGeometry</code>
+we created is centered around <code>(0, 0, 0)</code>, but the volume texture needs to be
 sampled using normalized coordinates in the range <code>[0...1].</code></p>
-<p>To validate our ray origin and dirction, let&rsquo;s first display the ray direction
+<blockquote class="hint danger">
+  <strong>Do not</strong> move the camera from the position <code>(0, 0, 2)</code> yet, and <strong>do not</strong>
+move the cloud. Otherwise, the sampling will be wrong with the current code.
+In the section <a href="#improving-ray-generation">Improving Ray Generation</a>, we will
+see how to modify the shader to generate a proper ray.
+</blockquote>
+
+<p>To validate our ray origin and direction, let&rsquo;s first display the ray direction
 in the fragment shader:</p>
 <p><em>cloud.frag.glsl</em></p>
 <pre><code class="language-glsl">precision highp float;
@@ -770,7 +786,7 @@ for (int i = 0; i &lt; NB_STEPS; ++i)
   // The more we already accumulated, the less color we apply.
   acc.rgb += (1.0 - acc.a) * s * baseColor;
   // The more we already accumulated, the less opacity we apply.
-  acc.a += (1.0 - acc.a) * s * 0.5;
+  acc.a += (1.0 - acc.a) * s;
 
   // Early termination: after this threshold, accumulating becomes insignificant.
   if (acc.a &gt; 0.95) { break; }
@@ -835,7 +851,8 @@ for (int i = 0; i &lt; NB_STEPS; ++i)
 <p><img src="./sampling-with-shading.jpg" alt="Light atteunation"></p>
 <p>Okay, we are starting to get convincing results here. However, we generated our
 cloud to be empty around the edges of the cube. The sampling still
-takes into account those values. The issue arises because in some cases, the ray
+takes into account those values.</p>
+<p>The issue arises because in some cases, the ray
 is still getting sampled outside the volume. Technically, the ray shouldn&rsquo;t
 be sampled anymore after leaving the volume. For that, let&rsquo;s check when the ray
 goes beyond the <code>far</code> value:</p>
@@ -856,15 +873,15 @@ for (int i = 0; i &lt; NB_STEPS; ++i)
 }
 </code></pre>
 <p><img src="./ray-termination-far.jpg" alt="No sample outside volume"></p>
-<p>You may still think that the result isn&rsquo;t exactly what you wanted, but I can
-assure you, we have what we expected. We can now modulate the value of the
-sample on the fly to change the cloud shape. Let&rsquo;s start by applying
-some <strong>windowing</strong>, i.e., shift the sample values:</p>
+<p>You may still think that the result isn&rsquo;t exactly what you wanted. We can
+modulate the value of the sample on the fly to change the cloud shape.
+Let&rsquo;s start by applying some <strong>windowing</strong>, i.e., shift the sample values:</p>
 <p><em>cloud.frag.glsl</em></p>
 <pre><code class="language-glsl">...
 for (int i = 0; i &lt; NB_STEPS; ++i)
 {
   float s = texture(uVolume, ray.origin).r;
+  // Clamps the sample value between `0.12` and `0.35` smoothly.
   s = smoothstep(0.12, 0.35, s);
   ...
 }
@@ -947,6 +964,7 @@ main()
 to add would be to code camera controls, or use one of the ones
 <a href="https://threejs.org/docs/#examples/en/controls/OrbitControls">provided by Three.js</a>.</p>
 <h2 id="going-further">Going Further<a class="anchor" href="#going-further">#</a></h2>
+<p>You did it!</p>
 <p>If you took a look at the <a href="https://github.com/DavidPeicho/davidpeicho.github.io/blob/master/src/shaders/cloud.frag.glsl">code</a>, you will see a bit more stuff. The shader is customizable using uniforms
 and preprocessor directives.</p>
 <p>You can customize this tutorial in a lot of way:</p>
@@ -956,13 +974,14 @@ and preprocessor directives.</p>
 <li>Improve the lighting, with some crazy alien stuff for instance!</li>
 <li>Basically everything you could think of :)</li>
 </ul>
-<p>In the next blog post, we will see how to obtain something more colorful, and
+<p>In the next blog post, we will improve the rendering, and I will show you
 how I created the <em>&ldquo;fire&rdquo;-like</em> effect.</p>
 <h1 id="references">References</h1>
 <ol>
-<li><a href="https://graphics.pixar.com/library/ProductionVolumeRendering/paper.pdf">Fong, J., Wrenninge, M., Kulla, C., &amp; Habel, R., SIGGRAPH 2017, Production Volume Rendering</a></li>
-<li><a href="https://doc.lagout.org/science/0_Computer%20Science/Real-Time%20Volume%20Graphics.pdf">Engel, K., Hadwiger, M.,  M. Kniss, J.,  Rezk-Salama, C., 2006, Real-Time Volume Graphics</a></li>
-<li><a href="http://www.pbr-book.org/3ed-2018/Volume_Scattering.html">Pharr, M., Jakob, .W, &amp; Humphreys, .G, Physically Based Rendering: From Theory To Implementation</a></li>
+<li><a href="https://graphics.pixar.com/library/ProductionVolumeRendering/paper.pdf">Fong J., Wrenninge M., Kulla C., &amp; Habel R., SIGGRAPH 2017, Production Volume Rendering</a></li>
+<li><a href="https://doc.lagout.org/science/0_Computer%20Science/Real-Time%20Volume%20Graphics.pdf">Engel K., Hadwiger M.,  M. Kniss J.,  Rezk-Salama, C., 2006, Real-Time Volume Graphics</a></li>
+<li><a href="http://www.pbr-book.org/3ed-2018/Volume_Scattering.html">Pharr M., Jakob .W, &amp; Humphreys .G, Physically Based Rendering: From Theory To Implementation</a></li>
+<li><a href="https://mrl.nyu.edu/~perlin/paper445.pdf">Perlin K., 97, Improving Noise</a></li>
 </ol>
 
               
